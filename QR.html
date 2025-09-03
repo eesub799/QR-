@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMV QR Generator - For Students</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* Animated background particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        .particle:nth-child(1) { width: 80px; height: 80px; top: 20%; left: 10%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 120px; height: 120px; top: 60%; left: 80%; animation-delay: 2s; }
+        .particle:nth-child(3) { width: 60px; height: 60px; top: 80%; left: 20%; animation-delay: 4s; }
+        .particle:nth-child(4) { width: 100px; height: 100px; top: 30%; left: 70%; animation-delay: 1s; }
+        .particle:nth-child(5) { width: 40px; height: 40px; top: 10%; left: 60%; animation-delay: 3s; }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-30px) rotate(180deg); opacity: 0.3; }
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        
+        .logo {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        
+        .nmv-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 10px;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .input-label {
+            display: block;
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        
+        .url-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+        
+        .url-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        
+        .url-input::placeholder {
+            color: #9ca3af;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+        
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .generate-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .generate-btn:hover::before {
+            left: 100%;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .result-section.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .qr-container {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: 3px solid #f3f4f6;
+        }
+        
+        .qr-canvas {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(16, 185, 129, 0.4);
+        }
+        
+        .url-display {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            color: #64748b;
+            word-break: break-all;
+            margin-top: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .quick-examples {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+        }
+        
+        .example-title {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+        
+        .example-item {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .example-item:hover {
+            background: #f8fafc;
+            border-color: #667eea;
+            color: #374151;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #9ca3af;
+            font-size: 13px;
+        }
+        
+        .heart {
+            color: #ef4444;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .loading {
+            display: none;
+            color: #667eea;
+        }
+        
+        .loading.show {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px;
+                margin: 10px;
+            }
+            
+            .logo {
+                font-size: 2em;
+            }
+            
+            .url-input, .generate-btn, .download-btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated background particles -->
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1 class="logo">
+                <i class="fas fa-qrcode"></i> QR Generator
+            </h1>
+            <p class="subtitle">Create QR codes instantly</p>
+            <div class="nmv-badge">
+                <i class="fas fa-graduation-cap"></i> Made for NMV Students
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label class="input-label" for="urlInput">
+                <i class="fas fa-link"></i> Enter URL or Text
+            </label>
+            <input 
+                type="text" 
+                id="urlInput" 
+                class="url-input"
+                placeholder="https://github.com/username/repository"
+                autocomplete="off"
+            >
+        </div>
+
+        <button class="generate-btn" onclick="generateQR()">
+            <i class="fas fa-magic loading" id="loadingIcon"></i>
+            <span id="btnText">Generate QR Code</span>
+        </button>
+
+        <div class="quick-examples">
+            <div class="example-title">
+                <i class="fas fa-lightbulb"></i> Quick Examples
+            </div>
+            <div class="example-item" onclick="fillExample('https://github.com/nmv-college/project')">
+                <i class="fab fa-github"></i> GitHub Repository
+            </div>
+            <div class="example-item" onclick="fillExample('https://nmvcollege.edu.in')">
+                <i class="fas fa-university"></i> NMV College Website
+            </div>
+            <div class="example-item" onclick="fillExample('mailto:student@nmvcollege.edu.in')">
+                <i class="fas fa-envelope"></i> Email Address
+            </div>
+            <div class="example-item" onclick="fillExample('https://linkedin.com/in/nmv-student')">
+                <i class="fab fa-linkedin"></i> LinkedIn Profile
+            </div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="qr-container" id="qrContainer"></div>
+            
+            <button class="download-btn" onclick="downloadQR()" id="downloadBtn">
+                <i class="fas fa-download"></i> Download QR Code
+            </button>
+            
+            <div class="url-display" id="urlDisplay"></div>
+        </div>
+
+        <div class="footer">
+            Made with <span class="heart">❤</span> for NMV Students
+            <br>
+            <small>Works offline • No data stored • Completely secure</small>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    
+    <script>
+        let currentQR = null;
+        
+        function generateQR() {
+            const url = document.getElementById('urlInput').value.trim();
+            const loadingIcon = document.getElementById('loadingIcon');
+            const btnText = document.getElementById('btnText');
+            
+            if (!url) {
+                showNotification('Please enter a URL or text!', 'error');
+                return;
+            }
+            
+            // Show loading
+            loadingIcon.classList.add('show');
+            btnText.textContent = 'Generating...';
+            
+            setTimeout(() => {
+                try {
+                    // Create QR code
+                    const qr = new QRious({
+                        element: document.createElement('canvas'),
+                        value: url,
+                        size: 280,
+                        background: '#ffffff',
+                        foreground: '#1f2937',
+                        level: 'M',
+                        padding: 20
+                    });
+                    
+                    currentQR = qr.canvas;
+                    
+                    // Display QR code
+                    const qrContainer = document.getElementById('qrContainer');
+                    qrContainer.innerHTML = '';
+                    
+                    const canvas = currentQR.cloneNode(true);
+                    canvas.className = 'qr-canvas';
+                    qrContainer.appendChild(canvas);
+                    
+                    // Show result section
+                    const resultSection = document.getElementById('resultSection');
+                    resultSection.classList.add('show');
+                    
+                    // Display URL
+                    document.getElementById('urlDisplay').innerHTML = 
+                        `<i class="fas fa-link"></i> <strong>Generated for:</strong><br>${url}`;
+                    
+                    // Reset button
+                    loadingIcon.classList.remove('show');
+                    btnText.textContent = 'Generate QR Code';
+                    
+                    showNotification('QR Code generated successfully!', 'success');
+                    
+                } catch (error) {
+                    console.error('QR Generation Error:', error);
+                    showNotification('Error generating QR code. Please try again.', 'error');
+                    
+                    loadingIcon.classList.remove('show');
+                    btnText.textContent = 'Generate QR Code';
+                }
+            }, 800);
+        }
+        
+        function downloadQR() {
+            if (!currentQR) {
+                showNotification('Please generate a QR code first!', 'error');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().slice(0, 10);
+            link.download = `NMV-QR-Code-${timestamp}.png`;
+            link.href = currentQR.toDataURL('image/png');
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('QR Code downloaded successfully!', 'success');
+        }
+        
+        function fillExample(text) {
+            document.getElementById('urlInput').value = text;
+            document.getElementById('urlInput').focus();
+        }
+        
+        function showNotification(message, type) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                padding: 15px 25px;
+                border-radius: 12px;
+                font-weight: 600;
+                z-index: 1000;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                transform: translateX(100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            `;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Show notification
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Hide notification
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // Enter key support
+        document.getElementById('urlInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQR();
+            }
+        });
+        
+        // Auto-focus on input
+        window.addEventListener('load', function() {
+            document.getElementById('urlInput').focus();
+        });
+        
+        // Add some randomization to particles
+        const particles = document.querySelectorAll('.particle');
+        particles.forEach(particle => {
+            const randomDelay = Math.random() * 2;
+            const randomDuration = 4 + Math.random() * 4;
+            particle.style.animationDelay = randomDelay + 's';
+            particle.style.animationDuration = randomDuration + 's';
+        });
+    </script>
+</body>
+</html>
